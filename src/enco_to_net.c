@@ -120,7 +120,8 @@ void network_relay(int fd, int socket, struct sockaddr *addr)
         res = soft_read_time_out(t, fd, &buff, ENCOPACKETLEN);
         printf("Read: %d bytes", res);
         int nbytes = sendto(socket, buff, sizeof(buff), 0, addr, 
-                     sizeof(*addr));    }
+                     sizeof(*addr));    
+    }
 }
 
 
@@ -157,7 +158,7 @@ int main (int argc, char **argv)
     port = MULTICASTPORT;
     sock = open_socket(address, port, &addr);
 
-    network_relay(fd, sock, &addr);
+    network_relay(fd, sock, (struct sockaddr *) &addr);
 
 /*
     while (1)
