@@ -20,7 +20,7 @@
 
 #define MULTICASTADDR    "224.0.0.69"
 #define MULTICASTPORT    10001
-#define ENCODERSBAUDRATE 56700
+#define ENCODERSBAUDRATE 57600
 #define DEVICE           "/dev/encoder"
 #define BUFFLEN          128
 #define ENCOPACKETLEN    38
