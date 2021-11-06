@@ -115,6 +115,8 @@ void network_relay(int fd, int socket, struct sockaddr *addr)
     t.tv_sec  = 1;
     t.tv_usec = 0;
 
+    bzero(&buff, BUFFLEN);
+
     while (1)
     {
         res = soft_read_time_out(t, fd, &buff, ENCOPACKETLEN);
