@@ -15,6 +15,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#include <encoders.h>
+
 
 #define MULTICASTADDR "224.0.0.69"
 #define MULTICASTPORT 10001
@@ -58,7 +60,7 @@ int open_port(char *device)
     return 0;
 }
 
-int open_socket()
+int open_socket(char *address, int port, struct sockaddr_in *addr)
 {
     int sock;
 
@@ -68,15 +70,21 @@ int open_socket()
         exit(1);
     }
 
-    return 0;
+    addr->sin_family = AF_INET;
+    addr->sin_addr.s_addr = inet_addr(address);
+    addr->sin_port = htons(port);
+
+    return sock;
 }
 
 int main (int argc, char **argv)
 {
-    int fd, op;
-    char *filename;  
+    int fd, op, port, sock;
+    char *filename, *address;
+    struct sockaddr_in addr;
+    const char *message = "Hola tarola";
 
-    while ((op = getopt(argc, argv, "d:")) != EOF)
+    while ((op = getopt(argc, argv, "d:n:p:")) != EOF)
     {
         switch (op)
         {
@@ -84,14 +92,29 @@ int main (int argc, char **argv)
                 filename = argv[optind-1];
                 fd = open_port(filename);
                 if (fd < 0){
-                    exit("Error opening the device");
+                    exit(-1);
                 }
                 break;
+            case 'n':
+                address = argv[optind-1];    
+            break;
+            case 'p':
+                port = atoi(argv[optind-1]);
+            break;
             
             default:
                 exit(-1);
         }
+    }
+    address = MULTICASTADDR;
+    port = MULTICASTPORT;
+    sock = open_socket(address, port, &addr);
 
+    while (1)
+    {
+        int nbytes = sendto(sock, message, strlen(message), 0, (struct sockaddr*) &addr, sizeof(addr));
+        printf("Written %d bytes\n", nbytes);
+        sleep(1);
     }
     return 0;
 }
