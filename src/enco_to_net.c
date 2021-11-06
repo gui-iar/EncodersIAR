@@ -112,8 +112,8 @@ void network_relay(int fd, int socket, struct sockaddr *addr)
     uint8_t buff[BUFFLEN];
     int res;
 
-    t.tv_sec  = 0;
-    t.tv_usec = 200000;
+    t.tv_sec  = 1;
+    t.tv_usec = 0;
 
     while (1)
     {
