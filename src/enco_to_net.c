@@ -23,7 +23,7 @@
 #define ENCODERSBAUDRATE 57600
 #define DEVICE           "/dev/encoder"
 #define BUFFLEN          128
-#define ENCOPACKETLEN    38
+#define ENCOPACKETLEN    40
 
 int open_port(char *device)
 {
