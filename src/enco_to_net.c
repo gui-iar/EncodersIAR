@@ -60,7 +60,7 @@ int open_port(char *device)
 
 
     }
-    return 0;
+    return fd;
 }
 
 int open_socket(char *address, int port, struct sockaddr_in *addr)
@@ -120,9 +120,16 @@ void network_relay(int fd, int socket, struct sockaddr *addr)
     while (1)
     {
         res = soft_read_time_out(t, fd, &buff, ENCOPACKETLEN);
-        printf("Read: %d bytes", res);
-        int nbytes = sendto(socket, buff, sizeof(buff), 0, addr, 
-                     sizeof(*addr));    
+        if (res > 0)
+        {
+            printf("Read: %d bytes", res);
+            int nbytes = sendto(socket, buff, sizeof(buff), 0, addr, 
+                        sizeof(*addr));    
+        }
+        else
+        {
+            printf("Timeout reading serial port.\n");
+        }
     }
 }
 
