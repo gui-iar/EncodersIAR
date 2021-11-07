@@ -17,7 +17,6 @@
 
 #include <encoders.h>
 
-
 #define MULTICASTADDR    "224.0.0.69"
 #define MULTICASTPORT    10001
 #define ENCODERSBAUDRATE 57600
@@ -110,7 +109,7 @@ void network_relay(int fd, int socket, struct sockaddr *addr)
 {
     struct timeval t;
     uint8_t buff[BUFFLEN];
-    int res;
+    int res, nbytes;
 
     t.tv_sec  = 1;
     t.tv_usec = 0;
@@ -121,15 +120,10 @@ void network_relay(int fd, int socket, struct sockaddr *addr)
     {
         res = soft_read_time_out(t, fd, &buff, ENCOPACKETLEN);
         if (res > 0)
-        {
-            printf("Read: %d bytes", res);
-            int nbytes = sendto(socket, buff, sizeof(buff), 0, addr, 
-                        sizeof(*addr));    
-        }
+            nbytes = sendto(socket, buff, sizeof(buff), 0, addr, 
+                                sizeof(*addr));    
         else
-        {
-            printf("Timeout reading serial port.\n");
-        }
+            perror("Timeout reading serial port.");
     }
 }
 
@@ -163,20 +157,12 @@ int main (int argc, char **argv)
                 exit(-1);
         }
     }
+
     address = MULTICASTADDR;
     port = MULTICASTPORT;
     sock = open_socket(address, port, &addr);
 
     network_relay(fd, sock, (struct sockaddr *) &addr);
 
-/*
-    while (1)
-    {
-
-        int nbytes = sendto(sock, message, strlen(message), 0, (struct sockaddr*) &addr, sizeof(addr));
-        printf("Written %d bytes\n", nbytes);
-        sleep(1);
-    }
-*/
     return 0;
 }
