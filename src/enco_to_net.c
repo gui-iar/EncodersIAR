@@ -68,7 +68,7 @@ int open_socket(char *address, int port, struct sockaddr_in *addr)
 
     sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (sock < 0) {
-        perror("socket");
+        perror("Error opening socket.");
         exit(1);
     }
 
@@ -109,7 +109,7 @@ void network_relay(int fd, int socket, struct sockaddr *addr)
 {
     struct timeval t;
     uint8_t buff[BUFFLEN];
-    int res, nbytes;
+    int res;
 
     t.tv_sec  = 1;
     t.tv_usec = 0;
@@ -120,8 +120,8 @@ void network_relay(int fd, int socket, struct sockaddr *addr)
     {
         res = soft_read_time_out(t, fd, &buff, ENCOPACKETLEN);
         if (res > 0)
-            nbytes = sendto(socket, buff, sizeof(buff), 0, addr, 
-                                sizeof(*addr));    
+            sendto(socket, buff, sizeof(buff), 0, addr, 
+                   sizeof(*addr));    
         else
             perror("Timeout reading serial port.");
     }
@@ -133,7 +133,6 @@ int main (int argc, char **argv)
     int fd, op, port, sock;
     char *filename, *address;
     struct sockaddr_in addr;
-    const char *message = "Hola tarola";
 
     while ((op = getopt(argc, argv, "d:n:p:")) != EOF)
     {
