@@ -105,11 +105,33 @@ ssize_t soft_read_time_out(struct timeval tvl, int fd, void *buf,
     return l;
 }
 
+void package_data(uint8_t *inbuff, uint8_t *outbuff)
+{
+    // Ejemplo paquete de entrada desde el serie:
+    //'AR_ANG,4932,332.18,DEC_ANG,8191,239.99\r\n'
+    
+
+}
+
 void network_relay(int fd, int socket, struct sockaddr *addr)
 {
     struct timeval t;
     uint8_t buff[BUFFLEN];
     int res;
+
+    struct SAO_data_transport_header hdr;
+    struct SAO_data_transport sao_packet;
+
+    hdr.syncword       = SYNCWORD;
+    hdr.version        = VERSION;
+    hdr.packetid       = ENCOID;
+    hdr.message_type   = REPORTPACKET;
+    hdr.packet_counter = 0;
+    hdr.pdl            = 0;
+
+    sao_packet.hdr  = &hdr;
+    sao_packet.data = malloc(sizeof (uint8_t) * ENCOPACKETLEN);
+    sao_packet.end  = END;
 
     t.tv_sec  = 1;
     t.tv_usec = 0;
@@ -120,8 +142,16 @@ void network_relay(int fd, int socket, struct sockaddr *addr)
     {
         res = soft_read_time_out(t, fd, &buff, ENCOPACKETLEN);
         if (res > 0)
-            sendto(socket, buff, sizeof(buff), 0, addr, 
-                   sizeof(*addr));    
+        {
+            memcpy(&sao_packet.data, &buff, ENCOPACKETLEN);
+            //sendto(socket, buff, sizeof(buff), 0, addr, 
+            //       sizeof(*addr));
+            sendto(socket, &sao_packet, sizeof(sao_packet), 0, addr, 
+                   sizeof(*addr));
+            sao_packet.hdr->packet_counter++;
+            if (sao_packet.hdr->packet_counter > 0xFFFF)
+                sao_packet.hdr->packet_counter = 0;
+        }
         else
             perror("Timeout reading serial port.");
     }
