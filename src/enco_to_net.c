@@ -148,7 +148,7 @@ void network_relay(int fd, int socket, struct sockaddr *addr)
     sao_packet_net = sao_packet;
 
     //sao_packet_net.hdr.syncword = ntohs(sao_packet_net.hdr.syncword);
-    swap(sao_packet_net.hdr.syncword, sizeof(sao_packet_net.hdr.syncword));
+    swap((u_char *) &sao_packet_net.hdr.syncword, sizeof(sao_packet_net.hdr.syncword));
     sao_packet_net.hdr.packetid = ntohs(sao_packet_net.hdr.packetid);
     sao_packet_net.hdr.pdl      = ntohs(sao_packet_net.hdr.pdl     );
     sao_packet_net.end          = ntohs(sao_packet_net.end         );
