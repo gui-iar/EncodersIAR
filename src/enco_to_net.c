@@ -112,7 +112,7 @@ void network_relay(int fd, int socket, struct sockaddr *addr)
     uint8_t buff[BUFFLEN];
     int res;
 
-    struct SAO_data_transport sao_packet;
+    struct SAO_data_transport sao_packet, sao_packet_net;
 
     sao_packet.hdr.syncword       = SYNCWORD;
     sao_packet.hdr.version        = VERSION;
@@ -127,13 +127,25 @@ void network_relay(int fd, int socket, struct sockaddr *addr)
 
     bzero(&buff, BUFFLEN);
 
+    sao_packet_net = sao_packet;
+
+    sao_packet_net.hdr.syncword = ntohs(sao_packet_net.hdr.syncword);
+    sao_packet_net.hdr.packetid = ntohs(sao_packet_net.hdr.packetid);
+    sao_packet_net.hdr.pdl      = ntohs(sao_packet_net.hdr.pdl     );
+    sao_packet_net.end          = ntohs(sao_packet_net.end         );
+
     while (1)
     {
         res = soft_read_time_out(t, fd, sao_packet.data, ENCOPACKETLEN);
         if (res > 0)
         {
-            sendto(socket, &sao_packet, sizeof(sao_packet), 0, addr, 
+            memcpy(sao_packet_net.data, sao_packet.data, 
+                   sizeof(sao_packet));
+            sao_packet_net.hdr.packet_counter = ntohs(sao_packet.hdr.packet_counter);
+            
+            sendto(socket, &sao_packet_net, sizeof(sao_packet), 0, addr, 
                    sizeof(*addr));
+            
             sao_packet.hdr.packet_counter++;
             if (sao_packet.hdr.packet_counter > 0xFFFF)
                 sao_packet.hdr.packet_counter = 0;
