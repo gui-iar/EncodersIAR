@@ -17,6 +17,24 @@
 
 #include <encoders.h>
 
+/*
+ * swap: swaps a memory chunk
+ *       callit: swap((u_char *)&variable, sizeof(variable));
+ */
+void swap (u_char *data, size_t n)
+{
+    u_char temp;
+    size_t i;
+    n--;
+
+    for (i = 0; i <= n/2; i++)
+    {
+        temp = *(data+i);
+        *(data+i) = *(data+n-i);
+        *(data+n-i) = temp;
+    }
+}
+
 int open_port(char *device)
 {
     int fd;
@@ -129,7 +147,8 @@ void network_relay(int fd, int socket, struct sockaddr *addr)
 
     sao_packet_net = sao_packet;
 
-    sao_packet_net.hdr.syncword = ntohs(sao_packet_net.hdr.syncword);
+    //sao_packet_net.hdr.syncword = ntohs(sao_packet_net.hdr.syncword);
+    swap(sao_packet_net.hdr.syncword, sizeof(sao_packet_net.hdr.syncword));
     sao_packet_net.hdr.packetid = ntohs(sao_packet_net.hdr.packetid);
     sao_packet_net.hdr.pdl      = ntohs(sao_packet_net.hdr.pdl     );
     sao_packet_net.end          = ntohs(sao_packet_net.end         );
