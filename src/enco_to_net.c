@@ -17,13 +17,6 @@
 
 #include <encoders.h>
 
-#define MULTICASTADDR    "224.0.0.69"
-#define MULTICASTPORT    10001
-#define ENCODERSBAUDRATE 57600
-#define DEVICE           "/dev/encoder"
-#define BUFFLEN          128
-#define ENCOPACKETLEN    40
-
 int open_port(char *device)
 {
     int fd;
@@ -119,19 +112,15 @@ void network_relay(int fd, int socket, struct sockaddr *addr)
     uint8_t buff[BUFFLEN];
     int res;
 
-    struct SAO_data_transport_header hdr;
     struct SAO_data_transport sao_packet;
 
-    hdr.syncword       = SYNCWORD;
-    hdr.version        = VERSION;
-    hdr.packetid       = ENCOID;
-    hdr.message_type   = REPORTPACKET;
-    hdr.packet_counter = 0;
-    hdr.pdl            = 0;
-
-    sao_packet.hdr  = &hdr;
-    sao_packet.data = malloc(sizeof (uint8_t) * ENCOPACKETLEN);
-    sao_packet.end  = END;
+    sao_packet.hdr.syncword       = SYNCWORD;
+    sao_packet.hdr.version        = VERSION;
+    sao_packet.hdr.packetid       = ENCOID;
+    sao_packet.hdr.message_type   = REPORTPACKET;
+    sao_packet.hdr.packet_counter = 0;
+    sao_packet.hdr.pdl            = ENCOPACKETLEN;
+    sao_packet.end                = END;
 
     t.tv_sec  = 1;
     t.tv_usec = 0;
@@ -140,17 +129,14 @@ void network_relay(int fd, int socket, struct sockaddr *addr)
 
     while (1)
     {
-        res = soft_read_time_out(t, fd, &buff, ENCOPACKETLEN);
+        res = soft_read_time_out(t, fd, sao_packet.data, ENCOPACKETLEN);
         if (res > 0)
         {
-            memcpy(&sao_packet.data, &buff, ENCOPACKETLEN);
-            //sendto(socket, buff, sizeof(buff), 0, addr, 
-            //       sizeof(*addr));
             sendto(socket, &sao_packet, sizeof(sao_packet), 0, addr, 
                    sizeof(*addr));
-            sao_packet.hdr->packet_counter++;
-            if (sao_packet.hdr->packet_counter > 0xFFFF)
-                sao_packet.hdr->packet_counter = 0;
+            sao_packet.hdr.packet_counter++;
+            if (sao_packet.hdr.packet_counter > 0xFFFF)
+                sao_packet.hdr.packet_counter = 0;
         }
         else
             perror("Timeout reading serial port.");

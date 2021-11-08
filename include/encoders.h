@@ -5,6 +5,13 @@
 #define CMDPACKET      0x8E
 #define REPORTPACKET   0x8F
 
+#define MULTICASTADDR    "224.0.0.69"
+#define MULTICASTPORT    10001
+#define ENCODERSBAUDRATE 57600
+#define DEVICE           "/dev/encoder"
+#define BUFFLEN          128
+#define ENCOPACKETLEN    40
+
 struct __attribute__((__packed__)) SAO_data_transport_header 
 {
     uint16_t    syncword;
@@ -17,7 +24,7 @@ struct __attribute__((__packed__)) SAO_data_transport_header
 
 struct __attribute__((__packed__)) SAO_data_transport
 {
-    struct SAO_data_transport_header *hdr;
-    uint8_t                          *data;
+    struct SAO_data_transport_header hdr;
+    uint8_t                          data[ENCOPACKETLEN];
     uint16_t                         end;
 };
