@@ -14,7 +14,6 @@
 
 struct __attribute__((__packed__)) SAO_data_transport_header 
 {
-    uint16_t    syncword;
     uint8_t     version;
     uint16_t    packetid;
     uint8_t     message_type;
@@ -24,6 +23,7 @@ struct __attribute__((__packed__)) SAO_data_transport_header
 
 struct __attribute__((__packed__)) SAO_data_transport
 {
+    uint16_t                         syncword;
     struct SAO_data_transport_header hdr;
     uint8_t                          data[ENCOPACKETLEN];
     uint16_t                         end;

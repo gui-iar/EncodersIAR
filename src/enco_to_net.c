@@ -17,24 +17,6 @@
 
 #include <encoders.h>
 
-/*
- * swap: swaps a memory chunk
- *       callit: swap((u_char *)&variable, sizeof(variable));
- */
-void swap (u_char *data, size_t n)
-{
-    u_char temp;
-    size_t i;
-    n--;
-
-    for (i = 0; i <= n/2; i++)
-    {
-        temp = *(data+i);
-        *(data+i) = *(data+n-i);
-        *(data+n-i) = temp;
-    }
-}
-
 int open_port(char *device)
 {
     int fd;
@@ -116,14 +98,6 @@ ssize_t soft_read_time_out(struct timeval tvl, int fd, void *buf,
     return l;
 }
 
-void package_data(uint8_t *inbuff, uint8_t *outbuff)
-{
-    // Ejemplo paquete de entrada desde el serie:
-    //'AR_ANG,4932,332.18,DEC_ANG,8191,239.99\r\n'
-    
-
-}
-
 void network_relay(int fd, int socket, struct sockaddr *addr)
 {
     struct timeval t;
@@ -132,7 +106,7 @@ void network_relay(int fd, int socket, struct sockaddr *addr)
 
     struct SAO_data_transport sao_packet, sao_packet_net;
 
-    sao_packet.hdr.syncword       = SYNCWORD;
+    sao_packet.syncword           = SYNCWORD;
     sao_packet.hdr.version        = VERSION;
     sao_packet.hdr.packetid       = ENCOID;
     sao_packet.hdr.message_type   = REPORTPACKET;
@@ -147,22 +121,23 @@ void network_relay(int fd, int socket, struct sockaddr *addr)
 
     sao_packet_net = sao_packet;
 
-    //sao_packet_net.hdr.syncword = ntohs(sao_packet_net.hdr.syncword);
-    swap((u_char *) &sao_packet_net.hdr.syncword, sizeof(sao_packet_net.hdr.syncword));
-    sao_packet_net.hdr.packetid = ntohs(sao_packet_net.hdr.packetid);
-    sao_packet_net.hdr.pdl      = ntohs(sao_packet_net.hdr.pdl     );
-    sao_packet_net.end          = ntohs(sao_packet_net.end         );
-
+    sao_packet_net.syncword     = htons (sao_packet_net.syncword     );
+    sao_packet_net.hdr.packetid = htons (sao_packet_net.hdr.packetid );
+    sao_packet_net.hdr.pdl      = htons (sao_packet_net.hdr.pdl      );
+    sao_packet_net.end          = htons (sao_packet_net.end          );
+    
     while (1)
     {
+        // Ejemplo paquete de entrada desde el serie:
+        //'AR_ANG,4932,332.18,DEC_ANG,8191,239.99\r\n'
         res = soft_read_time_out(t, fd, sao_packet.data, ENCOPACKETLEN);
         if (res > 0)
         {
             memcpy(sao_packet_net.data, sao_packet.data, 
-                   sizeof(sao_packet));
-            sao_packet_net.hdr.packet_counter = ntohs(sao_packet.hdr.packet_counter);
+                   sizeof(sao_packet.data));
+            sao_packet_net.hdr.packet_counter = htons(sao_packet.hdr.packet_counter);
             
-            sendto(socket, &sao_packet_net, sizeof(sao_packet), 0, addr, 
+            sendto(socket, &sao_packet_net, sizeof(sao_packet_net), 0, addr, 
                    sizeof(*addr));
             
             sao_packet.hdr.packet_counter++;
@@ -177,8 +152,8 @@ void network_relay(int fd, int socket, struct sockaddr *addr)
 
 int main (int argc, char **argv)
 {
-    int fd, op, port, sock;
-    char *filename, *address;
+    int fd, op, port = -1, sock;
+    char *filename = NULL, *address = NULL;
     struct sockaddr_in addr;
 
     while ((op = getopt(argc, argv, "d:n:p:")) != EOF)
@@ -204,8 +179,11 @@ int main (int argc, char **argv)
         }
     }
 
-    address = MULTICASTADDR;
-    port = MULTICASTPORT;
+    if (address == NULL)
+        address = MULTICASTADDR;
+    if (port < 0)
+        port = MULTICASTPORT;
+
     sock = open_socket(address, port, &addr);
 
     network_relay(fd, sock, (struct sockaddr *) &addr);
