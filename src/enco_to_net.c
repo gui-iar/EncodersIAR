@@ -80,6 +80,8 @@ ssize_t soft_read_time_out(struct timeval tvl, int fd, void *buf,
     int fd_max = fd + 1;
     int retval, l = 0;
 
+    //tcflush(fd, TCIOFLUSH);
+
     while (l < count)
     {
         FD_ZERO(&rfds);
@@ -98,7 +100,25 @@ ssize_t soft_read_time_out(struct timeval tvl, int fd, void *buf,
     return l;
 }
 
-void network_relay(int fd, int socket, struct sockaddr *addr)
+int wait_char(int fd, const u_char pattern)
+{
+    int ret = 0;
+    u_char c;
+
+    struct timeval tv = {
+            .tv_sec = 1,
+            .tv_usec = 0
+    };
+
+    do {
+        ret = soft_read_time_out (tv, fd, &c, 1);
+    } while ((ret == 1) && c != pattern);
+    if (ret == 1) ret = 0;
+
+    return ret;
+}
+
+void network_relay(int fd, int socket, struct sockaddr *addr, uint16_t packetid)
 {
     struct timeval t;
     uint8_t buff[BUFFLEN];
@@ -108,7 +128,7 @@ void network_relay(int fd, int socket, struct sockaddr *addr)
 
     sao_packet.syncword           = SYNCWORD;
     sao_packet.hdr.version        = VERSION;
-    sao_packet.hdr.packetid       = ENCOID;
+    sao_packet.hdr.packetid       = packetid;
     sao_packet.hdr.message_type   = REPORTPACKET;
     sao_packet.hdr.packet_counter = 0;
     sao_packet.hdr.pdl            = ENCOPACKETLEN;
@@ -125,38 +145,43 @@ void network_relay(int fd, int socket, struct sockaddr *addr)
     sao_packet_net.hdr.packetid = htons (sao_packet_net.hdr.packetid );
     sao_packet_net.hdr.pdl      = htons (sao_packet_net.hdr.pdl      );
     sao_packet_net.end          = htons (sao_packet_net.end          );
-    
-    while (1)
-    {
-        // Ejemplo paquete de entrada desde el serie:
-        //'AR_ANG,4932,332.18,DEC_ANG,8191,239.99\r\n'
-        res = soft_read_time_out(t, fd, sao_packet.data, ENCOPACKETLEN);
-        if (res > 0)
+
+    if (wait_char(fd, (u_char) 0x0D) == 0)
+        if (wait_char(fd, (u_char) 0x0A) == 0)
         {
-            memcpy(sao_packet_net.data, sao_packet.data, 
-                   sizeof(sao_packet.data));
-            sao_packet_net.hdr.packet_counter = htons(sao_packet.hdr.packet_counter);
+            while (1)
+            {
+                // Ejemplo paquete de entrada desde el serie:
+                //'AR_ANG,4932,332.18,DEC_ANG,8191,239.99\r\n'
+                res = soft_read_time_out(t, fd, sao_packet.data, ENCOPACKETLEN);
+                if (res > 0)
+                {
+                    memcpy(sao_packet_net.data, sao_packet.data, 
+                            sizeof(sao_packet.data));
+                    sao_packet_net.hdr.packet_counter = htons(sao_packet.hdr.packet_counter);
             
-            sendto(socket, &sao_packet_net, sizeof(sao_packet_net), 0, addr, 
-                   sizeof(*addr));
+                    sendto(socket, &sao_packet_net, sizeof(sao_packet_net), 0, addr, 
+                                sizeof(*addr));
             
-            sao_packet.hdr.packet_counter++;
-            if (sao_packet.hdr.packet_counter > 0xFFFF)
-                sao_packet.hdr.packet_counter = 0;
+                    sao_packet.hdr.packet_counter++;
+                    if (sao_packet.hdr.packet_counter > 0xFFFF)
+                        sao_packet.hdr.packet_counter = 0;
+                }
+                else
+                    perror("Timeout reading serial port.");
+            }
         }
-        else
-            perror("Timeout reading serial port.");
     }
-}
 
 
 int main (int argc, char **argv)
 {
     int fd, op, port = -1, sock;
+    uint16_t packetid = -1;
     char *filename = NULL, *address = NULL;
     struct sockaddr_in addr;
 
-    while ((op = getopt(argc, argv, "d:n:p:")) != EOF)
+    while ((op = getopt(argc, argv, "d:n:p:i:")) != EOF)
     {
         switch (op)
         {
@@ -173,7 +198,9 @@ int main (int argc, char **argv)
             case 'p':
                 port = atoi(argv[optind-1]);
             break;
-            
+            case 'i':
+                packetid = atoi(argv[optind-1]);
+            break;
             default:
                 exit(-1);
         }
@@ -186,7 +213,7 @@ int main (int argc, char **argv)
 
     sock = open_socket(address, port, &addr);
 
-    network_relay(fd, sock, (struct sockaddr *) &addr);
+    network_relay(fd, sock, (struct sockaddr *) &addr, packetid);
 
     return 0;
 }

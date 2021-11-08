@@ -6,7 +6,7 @@
 #define REPORTPACKET   0x8F
 
 #define MULTICASTADDR    "224.0.0.69"
-#define MULTICASTPORT    10001
+#define MULTICASTPORT    10002
 #define ENCODERSBAUDRATE 57600
 #define DEVICE           "/dev/encoder"
 #define BUFFLEN          128
