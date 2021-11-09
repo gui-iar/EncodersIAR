@@ -183,8 +183,8 @@ void network_relay(int fd, int socket, struct sockaddr *addr, uint16_t packetid)
                 {
                     gettimeofday(&tv_cast.tv, NULL);
 
-                    swap(&tv_cast.timestamp[0], sizeof(u_int64_t));
-                    swap(&tv_cast.timestamp[1], sizeof(u_int64_t));
+                    //swap(&tv_cast.timestamp[0], sizeof(u_int64_t));
+                    //swap(&tv_cast.timestamp[1], sizeof(u_int64_t));
 
                     memcpy(&sao_packet_net.payload.timestamp, &tv_cast.timestamp,
                         sizeof(sao_packet.payload.timestamp));
