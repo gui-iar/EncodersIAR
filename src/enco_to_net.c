@@ -155,7 +155,7 @@ void network_relay(int fd, int socket, struct sockaddr *addr, uint16_t packetid)
     sao_packet.hdr.packetid       = packetid;
     sao_packet.hdr.message_type   = REPORTPACKET;
     sao_packet.hdr.packet_counter = 0;
-    sao_packet.hdr.pdl            = ENCOPACKETLEN;
+    sao_packet.hdr.pdl            = sizeof(struct SAO_data_transport_payload);
     sao_packet.end                = END;
 
     t.tv_sec  = 1;

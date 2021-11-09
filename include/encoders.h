@@ -32,5 +32,5 @@ struct __attribute__((__packed__)) SAO_data_transport
     uint16_t                          syncword;
     struct SAO_data_transport_header  hdr;
     struct SAO_data_transport_payload payload;
-    uint16_t                         end;
+    uint16_t                          end;
 };
