@@ -23,8 +23,8 @@ struct __attribute__((__packed__)) SAO_data_transport_header
 
 struct __attribute__((__packed__)) SAO_data_transport_payload
 {
-    uint64_t    timestamp[2];
-    uint8_t     data[ENCOPACKETLEN];
+    struct timeval timestamp;
+    uint8_t        data[ENCOPACKETLEN];
 };
 
 struct __attribute__((__packed__)) SAO_data_transport

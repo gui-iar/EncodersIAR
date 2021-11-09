@@ -144,12 +144,6 @@ void network_relay(int fd, int socket, struct sockaddr *addr, uint16_t packetid)
 
     struct SAO_data_transport sao_packet, sao_packet_net;
 
-    union timeval_cast
-    {
-        struct timeval tv;
-        uint64_t       timestamp[2];
-    } tv_cast;
-
     sao_packet.syncword           = SYNCWORD;
     sao_packet.hdr.version        = VERSION;
     sao_packet.hdr.packetid       = packetid;
@@ -181,15 +175,11 @@ void network_relay(int fd, int socket, struct sockaddr *addr, uint16_t packetid)
 
                 if (res > 0)
                 {
-                    gettimeofday(&tv_cast.tv, NULL);
+                    gettimeofday(&sao_packet_net.payload.timestamp, NULL);
 
                     //swap(&tv_cast.timestamp[0], sizeof(u_int64_t));
                     //swap(&tv_cast.timestamp[1], sizeof(u_int64_t));
 
-                    memcpy(&sao_packet_net.payload.timestamp, &tv_cast.timestamp,
-                        sizeof(sao_packet.payload.timestamp));
-                    memcpy(sao_packet_net.payload.data, sao_packet.payload.data, 
-                            sizeof(sao_packet.payload.data));
                     sao_packet_net.hdr.packet_counter = htons(sao_packet.hdr.packet_counter);
             
                     sendto(socket, &sao_packet_net, sizeof(sao_packet_net), 0, addr, 
