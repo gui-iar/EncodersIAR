@@ -176,6 +176,8 @@ void network_relay(int fd, int socket, struct sockaddr *addr, uint16_t packetid)
                 if (res > 0)
                 {
                     gettimeofday(&sao_packet_net.payload.timestamp, NULL);
+                    sao_packet_net.payload.timestamp.tv_sec=htonl(sao_packet_net.payload.timestamp.tv_sec);
+                    sao_packet_net.payload.timestamp.tv_usec=htonl(sao_packet_net.payload.timestamp.tv_usec);
 
                     sao_packet_net.hdr.packet_counter = htons(sao_packet.hdr.packet_counter);
             
