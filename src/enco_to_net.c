@@ -171,14 +171,11 @@ void network_relay(int fd, int socket, struct sockaddr *addr, uint16_t packetid)
             {
                 // Ejemplo paquete de entrada desde el serie:
                 //'AR_ANG,4932,332.18,DEC_ANG,8191,239.99\r\n'
-                res = soft_read_time_out(t, fd, sao_packet.payload.data, ENCOPACKETLEN);
+                res = soft_read_time_out(t, fd, sao_packet_net.payload.data, ENCOPACKETLEN);
 
                 if (res > 0)
                 {
                     gettimeofday(&sao_packet_net.payload.timestamp, NULL);
-
-                    //swap(&tv_cast.timestamp[0], sizeof(u_int64_t));
-                    //swap(&tv_cast.timestamp[1], sizeof(u_int64_t));
 
                     sao_packet_net.hdr.packet_counter = htons(sao_packet.hdr.packet_counter);
             
