@@ -164,10 +164,11 @@ void network_relay(int fd, int socket, struct sockaddr *addr, uint16_t packetid)
     sao_packet_net.hdr.pdl      = htons (sao_packet_net.hdr.pdl      );
     sao_packet_net.end          = htons (sao_packet_net.end          );
 
-    if (wait_char(fd, (u_char) 0x0D) == 0)
-        if (wait_char(fd, (u_char) 0x0A) == 0)
+    while (1)
+    {
+        if (wait_char(fd, (u_char) 0x41) == 0)
         {
-            while (1)
+            if (wait_char(fd, (u_char) 0x52) == 0)
             {
                 // Ejemplo paquete de entrada desde el serie:
                 //'AR_ANG,4932,332.18,DEC_ANG,8191,239.99\r\n'
@@ -193,7 +194,7 @@ void network_relay(int fd, int socket, struct sockaddr *addr, uint16_t packetid)
             }
         }
     }
-
+}
 
 int main (int argc, char **argv)
 {
