@@ -174,7 +174,7 @@ void network_relay(int fd, int socket, struct sockaddr *addr, uint16_t packetid)
                 //'AR_ANG,4932,332.18,DEC_ANG,8191,239.99\r\n'
                 sao_packet_net.payload.data[0] = 0x41;
                 sao_packet_net.payload.data[1] = 0x52;
-                res = soft_read_time_out(t, fd, sao_packet_net.payload.data[2], ENCOPACKETLEN-2);
+                res = soft_read_time_out(t, fd, &sao_packet_net.payload.data[2], ENCOPACKETLEN-2);
 
                 if (res > 0)
                 {
