@@ -36,10 +36,10 @@ void loop() {
   
   float grado_1 = 0.0;
   float grado_2 = 0.0;
-  int   grado_1_int;
-  int   grado_1_dec;
-  int   grado_2_int;
-  int   grado_2_dec;
+  unsigned int   grado_1_int;
+  unsigned int   grado_1_dec;
+  unsigned int   grado_2_int;
+  unsigned int   grado_2_dec;
   
   char buffer[40];
   
@@ -77,11 +77,11 @@ void loop() {
   grado_1= (float(GrayToBinary(pos_1))*360.0)/(pow(2,13));
   grado_2= (float(GrayToBinary(pos_2))*360.0)/(pow(2,13));
 
-  grado_1_int = (int) grado_1;
-  grado_1_dec = ((int)(grado_1*N_DECIMAL_POINTS_PRECISION)%N_DECIMAL_POINTS_PRECISION);
+  grado_1_int = (unsigned int) grado_1;
+  grado_1_dec = ((unsigned int)(grado_1*N_DECIMAL_POINTS_PRECISION)%N_DECIMAL_POINTS_PRECISION);
 
-  grado_2_int = (int) grado_2;
-  grado_2_dec = ((int)(grado_2*N_DECIMAL_POINTS_PRECISION)%N_DECIMAL_POINTS_PRECISION);
+  grado_2_int = (unsigned int) grado_2;
+  grado_2_dec = ((unsigned int)(grado_2*N_DECIMAL_POINTS_PRECISION)%N_DECIMAL_POINTS_PRECISION);
   
   delay(20);
 
