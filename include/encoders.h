@@ -12,6 +12,8 @@
 #define BUFFLEN          128
 #define ENCOPACKETLEN    40
 
+#define LATITUDE         -34.8601
+
 struct __attribute__((__packed__)) SAO_data_transport_header 
 {
     uint8_t     version;

@@ -136,11 +136,16 @@ int wait_char(int fd, const u_char pattern)
     return ret;
 }
 
-void network_relay(int fd, int socket, struct sockaddr *addr, uint16_t packetid)
+void network_relay(int fd, int socket, struct sockaddr *addr, uint16_t packetid, 
+                   float decoffset, float haoffset)
 {
     struct timeval t;
     uint8_t buff[BUFFLEN];
+    uint8_t datastring[ENCOPACKETLEN];
     int res;
+    float dec, ha;
+    int countsdec, countsha;
+    char tempstring[6];
 
     struct SAO_data_transport sao_packet, sao_packet_net;
 
@@ -178,6 +183,27 @@ void network_relay(int fd, int socket, struct sockaddr *addr, uint16_t packetid)
 
                 if (res > 0)
                 {
+                    bzero(tempstring, 6);
+                    memcpy(tempstring, sao_packet_net.payload.data[32], 6);
+                    dec = atof(tempstring);
+                    bzero(tempstring, 6);
+                    memcpy(tempstring, sao_packet_net.payload.data[12], 6);
+                    ha  = atof(tempstring);
+                    bzero(tempstring, 6);
+                    memcpy(tempstring, sao_packet_net.payload.data[7], 6);
+                    countsha = atoi(tempstring);
+                    bzero(tempstring, 6);
+                    memcpy(tempstring, sao_packet_net.payload.data[27], 6);
+                    countsdec = atoi(tempstring);
+
+                    dec = decoffset - (dec + (LATITUDE * -1));
+                    ha  = (ha - haoffset) * -1;
+
+                    sprintf(datastring, "AR_ANG,%04d,%03.02f,DEC_ANG,%04d,%03.02f\r\n", 
+                                                                    countsha, ha, countsdec, dec);
+
+                    memcpy(sao_packet_net.payload.data, datastring, ENCOPACKETLEN);
+                    
                     gettimeofday(&sao_packet_net.payload.timestamp, NULL);
                     sao_packet_net.payload.timestamp.tv_sec=htonl(sao_packet_net.payload.timestamp.tv_sec);
                     sao_packet_net.payload.timestamp.tv_usec=htonl(sao_packet_net.payload.timestamp.tv_usec);
@@ -204,8 +230,9 @@ int main (int argc, char **argv)
     uint16_t packetid = -1;
     char *filename = NULL, *address = NULL;
     struct sockaddr_in addr;
+    float decoffset, haoffset;
 
-    while ((op = getopt(argc, argv, "d:n:p:i:")) != EOF)
+    while ((op = getopt(argc, argv, "d:n:p:i:a:e:")) != EOF)
     {
         switch (op)
         {
@@ -225,6 +252,12 @@ int main (int argc, char **argv)
             case 'i':
                 packetid = atoi(argv[optind-1]);
             break;
+            case 'e':
+                decoffset = atof(argv[optind-1]);
+            break;
+            case 'a':
+                haoffset  = atof(argv[optind-1]);
+            break;
             default:
                 exit(-1);
         }
@@ -237,7 +270,7 @@ int main (int argc, char **argv)
 
     sock = open_socket(address, port, &addr);
 
-    network_relay(fd, sock, (struct sockaddr *) &addr, packetid);
+    network_relay(fd, sock, (struct sockaddr *) &addr, packetid, decoffset, haoffset);
 
     return 0;
 }
