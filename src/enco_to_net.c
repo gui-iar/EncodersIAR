@@ -199,10 +199,10 @@ void network_relay(int fd, int socket, struct sockaddr *addr, uint16_t packetid,
                     dec = decoffset - (dec + (LATITUDE * -1));
                     ha  = (ha - haoffset) * -1;
 
-                    sprintf(datastring, "AR_ANG,%04d,%03.02f,DEC_ANG,%04d,%03.02f", 
+                    sprintf(datastring, "AR_ANG,%04d,%03.02f,DEC_ANG,%04d,%03.02f\r\n", 
                                                                     countsha, ha, countsdec, dec);
 
-                    memcpy(sao_packet_net.payload.data, datastring, ENCOPACKETLEN);
+                    memcpy(sao_packet_net.payload.data, datastring, ENCOPACKETLEN-1);
 
                     gettimeofday(&sao_packet_net.payload.timestamp, NULL);
                     sao_packet_net.payload.timestamp.tv_sec=htonl(sao_packet_net.payload.timestamp.tv_sec);
