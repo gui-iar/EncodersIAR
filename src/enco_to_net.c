@@ -141,7 +141,7 @@ void network_relay(int fd, int socket, struct sockaddr *addr, uint16_t packetid,
 {
     struct timeval t;
     uint8_t buff[BUFFLEN];
-    uint8_t datastring[ENCOPACKETLEN];
+    char datastring[ENCOPACKETLEN];
     int res;
     float dec, ha;
     int countsdec, countsha;
@@ -184,16 +184,16 @@ void network_relay(int fd, int socket, struct sockaddr *addr, uint16_t packetid,
                 if (res > 0)
                 {
                     bzero(tempstring, 6);
-                    memcpy(tempstring, sao_packet_net.payload.data[32], 6);
+                    memcpy(tempstring, &sao_packet_net.payload.data[32], 6);
                     dec = atof(tempstring);
                     bzero(tempstring, 6);
-                    memcpy(tempstring, sao_packet_net.payload.data[12], 6);
+                    memcpy(tempstring, &sao_packet_net.payload.data[12], 6);
                     ha  = atof(tempstring);
                     bzero(tempstring, 6);
-                    memcpy(tempstring, sao_packet_net.payload.data[7], 6);
+                    memcpy(tempstring, &sao_packet_net.payload.data[7], 6);
                     countsha = atoi(tempstring);
                     bzero(tempstring, 6);
-                    memcpy(tempstring, sao_packet_net.payload.data[27], 6);
+                    memcpy(tempstring, &sao_packet_net.payload.data[27], 6);
                     countsdec = atoi(tempstring);
 
                     dec = decoffset - (dec + (LATITUDE * -1));
@@ -203,7 +203,7 @@ void network_relay(int fd, int socket, struct sockaddr *addr, uint16_t packetid,
                                                                     countsha, ha, countsdec, dec);
 
                     memcpy(sao_packet_net.payload.data, datastring, ENCOPACKETLEN);
-                    
+
                     gettimeofday(&sao_packet_net.payload.timestamp, NULL);
                     sao_packet_net.payload.timestamp.tv_sec=htonl(sao_packet_net.payload.timestamp.tv_sec);
                     sao_packet_net.payload.timestamp.tv_usec=htonl(sao_packet_net.payload.timestamp.tv_usec);
