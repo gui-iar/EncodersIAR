@@ -142,7 +142,7 @@ void network_relay(int fd, int socket, struct sockaddr *addr, uint16_t packetid,
     struct timeval t;
     uint8_t buff[BUFFLEN];
     char datastring[ENCOPACKETLEN];
-    int res;
+    int res, decint, haint, decfloat, hafloat;
     float dec, ha;
     int countsdec, countsha;
     char tempstring[6];
@@ -199,8 +199,15 @@ void network_relay(int fd, int socket, struct sockaddr *addr, uint16_t packetid,
                     dec = decoffset - (dec + (LATITUDE * -1));
                     ha  = (ha - haoffset) * -1;
 
-                    sprintf(datastring, "AR_ANG,%04d,%+02.02f,DEC_ANG,%04d,%+02.02f\r\n", 
-                                                                    countsha, ha, countsdec, dec);
+                    decint   = (int) dec;
+                    decfloat = (int) (dec*100) % 100;
+
+                    haint    = (int) ha;
+                    hafloat  = (int) (ha*100) % 100;
+
+                    sprintf(datastring, "AR_ANG,%04d,%+02d%02d,DEC_ANG,%04d,%+02d%02d\r\n", 
+                                                                                countsha,  haint,  hafloat, 
+                                                                                countsdec, decint, decfloat);
 
                     memcpy(sao_packet_net.payload.data, datastring, ENCOPACKETLEN);
 
