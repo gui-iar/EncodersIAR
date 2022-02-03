@@ -214,8 +214,8 @@ void network_relay(int fd, int socket, struct sockaddr *addr, uint16_t packetid,
                      //                                                           countsha,  haint,  hafloat, 
                      //                                                           countsdec, decint, decfloat);
                      sprintf(datastring, "AR_ANG,%04d,%+02d.%02d,DEC_ANG,%04d,%+02d.%02d\r\n", 
-                     //                                                           countsha,  haint,  hafloat, 
-                     //                                                           countsdec, decint, decfloat);
+                                                                               countsha,  haint,  hafloat, 
+                                                                                countsdec, decint, decfloat);
 
                     memcpy(sao_packet_net.payload.data, datastring, ENCOPACKETLEN);
 
