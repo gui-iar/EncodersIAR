@@ -200,7 +200,7 @@ void network_relay(int fd, int socket, struct sockaddr *addr, uint16_t packetid,
                     ha  = (ha - haoffset) * -1;
 
                     decint   = (int) dec;
-                    decfloat = (int) (dec*100) % 100;
+                    decfloat = abs((int) (dec*100) % 100);
 
                     haint    = (int) ha;
                     hafloat  = (int) (ha*100) % 100;
