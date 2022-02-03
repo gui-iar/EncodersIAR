@@ -200,7 +200,7 @@ void network_relay(int fd, int socket, struct sockaddr *addr, uint16_t packetid,
                     ha  = (ha - haoffset) * -1;
 
                     decint   = (int) dec;
-                    decfloat = abs((int) (dec*100) % 100);
+                    decfloat = (int) (dec*100) % 100);
 
                     haint    = (int) ha;
                     hafloat  = (int) (ha*100) % 100;
@@ -211,7 +211,7 @@ void network_relay(int fd, int socket, struct sockaddr *addr, uint16_t packetid,
                      //                                                          countsdec, decint, decfloat);
                     if (haint < 0 || hafloat < 0)
                         sprintf(datastring, "AR_ANG,%04d,-%02d.%02d,DEC_ANG,%04d,%+02d.%02d", 
-                                                                               countsha,  haint,  hafloat, 
+                                                                               countsha, abs(haint),  abs(hafloat), 
                                                                                countsdec, decint, decfloat);
                     else
                         sprintf(datastring, "AR_ANG,%04d,%+02d.%02d,DEC_ANG,%04d,%+02d.%02d", 
