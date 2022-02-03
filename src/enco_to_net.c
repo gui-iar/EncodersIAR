@@ -205,14 +205,17 @@ void network_relay(int fd, int socket, struct sockaddr *addr, uint16_t packetid,
                     haint    = (int) ha;
                     hafloat  = (int) (ha*100) % 100;
 
-                    if (haint > 0)
-                        sprintf(datastring, "AR_ANG,%04d,+%02d.%02d,DEC_ANG,%04d,%+02d.%02d\r\n", 
-                                                                                countsha,  haint,  hafloat, 
-                                                                                countsdec, decint, decfloat);
-                    if (haint < 0)
-                        sprintf(datastring, "AR_ANG,%04d,-%02d.%02d,DEC_ANG,%04d,%+02d.%02d\r\n", 
-                                                                                countsha,  haint,  hafloat, 
-                                                                                countsdec, decint, decfloat);
+                    //if (haint > 0)
+                    //    sprintf(datastring, "AR_ANG,%04d,+%02d.%02d,DEC_ANG,%04d,%+02d.%02d\r\n", 
+                    //                                                            countsha,  haint,  hafloat, 
+                     //                                                           countsdec, decint, decfloat);
+                    //if (haint < 0)
+                    //    sprintf(datastring, "AR_ANG,%04d,-%02d.%02d,DEC_ANG,%04d,%+02d.%02d\r\n", 
+                     //                                                           countsha,  haint,  hafloat, 
+                     //                                                           countsdec, decint, decfloat);
+                     sprintf(datastring, "AR_ANG,%04d,%+02d.%02d,DEC_ANG,%04d,%+02d.%02d\r\n", 
+                     //                                                           countsha,  haint,  hafloat, 
+                     //                                                           countsdec, decint, decfloat);
 
                     memcpy(sao_packet_net.payload.data, datastring, ENCOPACKETLEN);
 
