@@ -214,7 +214,7 @@ void network_relay(int fd, int socket, struct sockaddr *addr, uint16_t packetid,
                                                                                countsha, abs(haint),  abs(hafloat), 
                                                                                countsdec, decint, decfloat);
                     else
-                        sprintf(datastring, "AR_ANG,%04d,%+02d.%02d,DEC_ANG,%04d,%+02d.%02d", 
+                        sprintf(datastring, "AR_ANG,%04d,+%02d.%02d,DEC_ANG,%04d,%+02d.%02d", 
                                                                               countsha,  haint,  hafloat, 
                                                                               countsdec, decint, decfloat);
 
