@@ -209,13 +209,14 @@ void network_relay(int fd, int socket, struct sockaddr *addr, uint16_t packetid,
                     //    sprintf(datastring, "AR_ANG,%04d,+%02d.%02d,DEC_ANG,%04d,%+02d.%02d\r\n", 
                      //                                                           countsha,  haint,  hafloat, 
                      //                                                          countsdec, decint, decfloat);
-                    //if (haint < 0)
-                    //    sprintf(datastring, "AR_ANG,%04d,-%02d.%02d,DEC_ANG,%04d,%+02d.%02d\r\n", 
-                    //                                                           countsha,  haint,  hafloat, 
-                    //                                                           countsdec, decint, decfloat);
-                     sprintf(datastring, "AR_ANG,%04d,%+02d.%02d,DEC_ANG,%04d,%+02d.%02d", 
+                    if (haint < 0 || hafloat < 0)
+                        sprintf(datastring, "AR_ANG,%04d,-%02d.%02d,DEC_ANG,%04d,%+02d.%02d", 
                                                                                countsha,  haint,  hafloat, 
-                                                                                countsdec, decint, decfloat);
+                                                                               countsdec, decint, decfloat);
+                    else
+                        sprintf(datastring, "AR_ANG,%04d,%+02d.%02d,DEC_ANG,%04d,%+02d.%02d", 
+                                                                              countsha,  haint,  hafloat, 
+                                                                              countsdec, decint, decfloat);
 
                     printf("%d %d\n", haint, hafloat);
                     memcpy(sao_packet_net.payload.data, datastring, ENCOPACKETLEN);
