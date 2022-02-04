@@ -219,7 +219,7 @@ void network_relay(int fd, int socket, struct sockaddr *addr, uint16_t packetid,
                                                                               countsdec, decint, decfloat);
 
                     printf("%d %d\n", haint, hafloat);
-                    memcpy(sao_packet_net.payload.data, datastring, ENCOPACKETLEN);
+                    memcpy(sao_packet_net.payload.data, datastring, strlen(datastring) - 1);
 
                     gettimeofday(&sao_packet_net.payload.timestamp, NULL);
                     sao_packet_net.payload.timestamp.tv_sec=htonl(sao_packet_net.payload.timestamp.tv_sec);
