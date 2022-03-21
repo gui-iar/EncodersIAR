@@ -1,10 +1,10 @@
 [Unit]
-Description=Encoders A1
+Description=Encoders A2
 
 [Service]
 User=operador
 Group=users
-ExecStart=/usr/local/bin/enco_to_net -d /dev/encoder -n 224.0.0.69 -p 10002 -i 513
+ExecStart=/usr/local/bin/enco_to_net -d /dev/encoder -n 224.0.0.69 -p 10004 -i 257 -e 36.0 -a 54.01
 
 [Install]
 WantedBy=multi-user.target
